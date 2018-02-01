@@ -1,4 +1,3 @@
-
 (defvar my-alias-prefix "my/")
 
 (defun make-alias (fun &optional prefix)
@@ -155,10 +154,12 @@
     moinmoin-mode
     org
     ox-minutes
+    ox-reveal
     polymode
     projectile
     rainbow-delimiters
     smart-mode-line
+    solarized-theme
     swiper
     visual-regexp
     visual-regexp-steroids
@@ -412,10 +413,10 @@
 ;;   (exec-path-from-shell-initialize))
 
 (global-set-key [(control x) (control c)]
-                (function
-                 (lambda () (interactive)
-                   (cond ((y-or-n-p "Quit? (save-buffers-kill-terminal) ")
-                          (save-buffers-kill-terminal))))))
+		(function
+		 (lambda () (interactive)
+		   (cond ((y-or-n-p "Quit? (save-buffers-kill-terminal) ")
+			  (save-buffers-kill-terminal))))))
 
 (setq delete-trailing-lines nil)
 (add-hook 'before-save-hook 'delete-trailing-whitespace)
@@ -442,7 +443,9 @@
            (set-keyboard-coding-system 'mac-roman)
            (setq mac-option-modifier 'meta)
            (setq mac-command-key-is-meta nil)
-           (set-default-font-verbosely "Menlo-14")))
+           (set-default-font-verbosely "Menlo-14")
+	   (set-frame-size (selected-frame) 164 54)
+	   (load-theme 'solarized-dark t)))
         ((string= "x" window-system)
          (progn
            (message (format "** running %s windowing system" window-system))
@@ -535,7 +538,7 @@
   "switch-buffers-between-frames switches the buffers between the two last frames"
   (interactive)
   (let ((this-frame-buffer nil)
-        (other-frame-buffer nil))
+	(other-frame-buffer nil))
     (setq this-frame-buffer (car (frame-parameter nil 'buffer-list)))
     (other-frame 1)
     (setq other-frame-buffer (car (frame-parameter nil 'buffer-list)))
@@ -620,10 +623,10 @@ the R interpreter. On systems using
 before defining the path."
      (interactive)
      (setq inferior-ess-r-program-name
-           (replace-regexp-in-string
-            "\n" ""
-            (shell-command-to-string
-             "which ml > /dev/null && (ml R; which R) || which R"))))
+	   (replace-regexp-in-string
+	    "\n" ""
+	    (shell-command-to-string
+	     "which ml > /dev/null && (ml R; which R) || which R"))))
 (make-alias 'set-inferior-ess-r-program-name)
 
 (add-hook 'ess-mode-hook
@@ -719,7 +722,8 @@ before defining the path."
              (org-babel-do-load-languages
               'org-babel-load-languages my/org-babel-load-languages)
 
-             (require 'ox-minutes nil t)
+	     (require 'ox-minutes nil t)
+	     (require 'ox-reveal nil t)
 
              ;; (defun org-with-silent-modifications(&rest args)
              ;;   "Replaces function causing error on org-export"
@@ -729,8 +733,12 @@ before defining the path."
                (progn (end-of-buffer) (recenter-top-bottom)))
              (ad-activate 'org-todo-list)
              ))
-
-(setq org-agenda-files (list "~/Dropbox/notes/index.org"))
+(setq org-agenda-files (list "~/Dropbox/notes/index.org"
+"~/Dropbox/notes/home.org"
+"~/Dropbox/notes/work.org"
+"~/Dropbox/notes/emails.org"
+"~/Dropbox/notes/captures.org"
+"~/Dropbox/notes/reminders.org"))
 (push '("\\.org\\'" . org-mode) auto-mode-alist)
 (push '("\\.org\\.txt\\'" . org-mode) auto-mode-alist)
 
@@ -742,6 +750,7 @@ before defining the path."
         ("RET" nil "<quit>")
         ("i" org-previous-item "org-previous-item")
         ("k" org-next-item "org-next-item")
+        ("a" org-agenda "org-agenda")
         ("<right>" org-next-block "org-next-block")
         ("<left>" org-previous-block "org-previous-block")
         ("<down>" outline-next-visible-heading "outline-next-visible-heading")

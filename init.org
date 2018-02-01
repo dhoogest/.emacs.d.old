@@ -490,10 +490,12 @@ emacs was first started.
     moinmoin-mode
     org
     ox-minutes
+    ox-reveal
     polymode
     projectile
     rainbow-delimiters
     smart-mode-line
+    solarized-theme
     swiper
     visual-regexp
     visual-regexp-steroids
@@ -931,7 +933,8 @@ File path in title bar. See http://stackoverflow.com/questions/3669511/the-funct
 (set-cursor-color "red")
 (blink-cursor-mode 1)
 #+END_SRC
-
+** solarized theme
+(load-theme ‘solarized t)
 * Environment
 ** update load path
 
@@ -1057,7 +1060,9 @@ server process.
            (set-keyboard-coding-system 'mac-roman)
            (setq mac-option-modifier 'meta)
            (setq mac-command-key-is-meta nil)
-           (set-default-font-verbosely "Menlo-14")))
+           (set-default-font-verbosely "Menlo-14")
+	   (set-frame-size (selected-frame) 164 54)
+	   (load-theme 'solarized-dark t)))
         ((string= "x" window-system)
          (progn
            (message (format "** running %s windowing system" window-system))
@@ -1498,6 +1503,7 @@ org-mode hooks
               'org-babel-load-languages my/org-babel-load-languages)
 
 	     (require 'ox-minutes nil t)
+	     (require 'ox-reveal nil t)
 
              ;; (defun org-with-silent-modifications(&rest args)
              ;;   "Replaces function causing error on org-export"
@@ -1507,8 +1513,12 @@ org-mode hooks
                (progn (end-of-buffer) (recenter-top-bottom)))
              (ad-activate 'org-todo-list)
              ))
-
-(setq org-agenda-files (list "~/Dropbox/notes/index.org"))
+(setq org-agenda-files (list "~/Dropbox/notes/index.org"
+"~/Dropbox/notes/home.org"
+"~/Dropbox/notes/work.org"
+"~/Dropbox/notes/emails.org"
+"~/Dropbox/notes/captures.org"
+"~/Dropbox/notes/reminders.org"))
 (push '("\\.org\\'" . org-mode) auto-mode-alist)
 (push '("\\.org\\.txt\\'" . org-mode) auto-mode-alist)
 #+END_SRC
@@ -1529,6 +1539,7 @@ blocks.
         ("RET" nil "<quit>")
         ("i" org-previous-item "org-previous-item")
         ("k" org-next-item "org-next-item")
+        ("a" org-agenda "org-agenda")
         ("<right>" org-next-block "org-next-block")
         ("<left>" org-previous-block "org-previous-block")
         ("<down>" outline-next-visible-heading "outline-next-visible-heading")
