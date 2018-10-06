@@ -1201,7 +1201,14 @@ following line."
 (put 'narrow-to-region 'disabled nil)
 
 (custom-set-variables
-  '(safe-local-variable-values (quote ((toggle-read-only . t)))))
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(package-selected-packages
+   (quote
+    (yas-jit yaml-mode web-mode visual-regexp-steroids visual-regexp solarized-theme smart-mode-line rainbow-delimiters polymode ox-reveal ox-minutes org moinmoin-mode markdown-mode magit jinja2-mode hydra htmlize helm-projectile helm-swoop helm-descbinds helm git-timemachine gist flycheck expand-region ess elpy edit-server dash-at-point discover csv-mode auctex which-key avy swiper use-package)))
+ '(safe-local-variable-values (quote ((toggle-read-only . t)))))
 
 ;; This program is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -1215,3 +1222,9 @@ following line."
 
 ;; You should have received a copy of the GNU General Public License
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
