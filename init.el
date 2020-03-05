@@ -26,31 +26,31 @@
             '(buffer-file-name "%f" (dired-directory dired-directory "%b"))))
 
 ;; path utilities
-(defun nh/path-join (&rest x)
+(defun dh/path-join (&rest x)
   "Join elements of x with a path separator and apply `expand-file-name'"
   (expand-file-name
    (concat
     (mapconcat 'file-name-as-directory (seq-take x (- (length x) 1)) "")
     (elt x (- (length x) 1)))))
 
-(defun nh/emacs-dir-path (name)
+(defun dh/emacs-dir-path (name)
   "Return absolute path to a file in the same directory as `user-init-file'"
   (expand-file-name name user-emacs-directory))
 
 ;; save customizations here instead of init.el
-(setq custom-file (nh/emacs-dir-path "custom.el"))
+(setq custom-file (dh/emacs-dir-path "custom.el"))
 (unless (file-exists-p custom-file)
   (write-region "" nil custom-file))
 (load custom-file)
 
-(defun nh/set-default-font-verbosely (font-name)
+(defun dh/set-default-font-verbosely (font-name)
   (interactive)
   (message (format "** setting default font to %s" font-name))
   (condition-case nil
       (set-default-font font-name)
     (error (message (format "** Error: could not set to font %s" font-name)))))
 
-(defun nh/fix-frame (&optional frame)
+(defun dh/fix-frame (&optional frame)
   "Apply platform-specific settings."
   (interactive)
   (cond ((string= "ns" window-system) ;; cocoa
@@ -62,7 +62,8 @@
            (set-keyboard-coding-system 'mac-roman)
            (setq mac-option-modifier 'meta)
            (setq mac-command-key-is-meta nil)
-           (nh/set-default-font-verbosely "Menlo-14")))
+           (dh/set-default-font-verbosely "Menlo-12")
+	   (set-frame-size (selected-frame) 164 54)))
         ((string= "x" window-system)
          (progn
            (message (format "** running %s windowing system" window-system))
@@ -72,7 +73,7 @@
            (setq x-select-enable-clipboard t)))
         (t
          (message "** running in terminal mode"))))
-(nh/fix-frame)
+(dh/fix-frame)
 
 ;;* startup and shutdown
 (setq inhibit-splash-screen t)
@@ -85,14 +86,14 @@
 (setq ns-pop-up-frames nil)
 
 ;; require prompt before exit on C-x C-c
-(defun nh/ask-before-exit ()
+(defun dh/ask-before-exit ()
   (interactive)
   (cond ((y-or-n-p "Quit? (save-buffers-kill-terminal) ")
 	 (save-buffers-kill-terminal))))
-(global-set-key (kbd "C-x C-c") 'nh/ask-before-exit)
+(global-set-key (kbd "C-x C-c") 'dh/ask-before-exit)
 
 ;; desktop
-(defun nh/desktop-save-no-p ()
+(defun dh/desktop-save-no-p ()
   "Save desktop without prompting (replaces `desktop-save-in-desktop-dir')"
   (interactive)
   (desktop-save desktop-dirname))
@@ -103,10 +104,10 @@
     (message "** desktop auto-save is enabled")
     (require 'desktop)
     (desktop-save-mode 1)
-    (add-hook 'auto-save-hook 'nh/desktop-save-no-p)))
+    (add-hook 'auto-save-hook 'dh/desktop-save-no-p)))
 
 ;;* execution environment
-(defun nh/ssh-refresh ()
+(defun dh/ssh-refresh ()
   "Reset the environment variable SSH_AUTH_SOCK"
   (interactive)
   (let
@@ -121,14 +122,14 @@
      (format "SSH_AUTH_SOCK %s --> %s"
              ssh-auth-sock-old (getenv "SSH_AUTH_SOCK")))))
 
-(defun nh/prepend-path (path)
+(defun dh/prepend-path (path)
   "Add `path' to the beginning of $PATH unless already present."
   (interactive)
   (unless (string-match path (getenv "PATH"))
     (setenv "PATH" (concat path ":" (getenv "PATH")))))
 
-(nh/prepend-path (nh/emacs-dir-path "bin"))
-(add-to-list 'exec-path (nh/emacs-dir-path "bin"))
+(dh/prepend-path (dh/emacs-dir-path "bin"))
+(add-to-list 'exec-path (dh/emacs-dir-path "bin"))
 
 ;;* other settings
 (setq suggest-key-bindings 4)
@@ -144,19 +145,19 @@
 
 ;;* general utilities
 
-(defun nh/back-window ()
+(defun dh/back-window ()
   "switch windows with C- and arrow keys"
   (interactive)
   (other-window -1))
 (global-set-key (kbd "C-<right>") 'other-window)
-(global-set-key (kbd "C-<left>") 'nh/back-window)
+(global-set-key (kbd "C-<left>") 'dh/back-window)
 
-(defun nh/insert-date ()
+(defun dh/insert-date ()
   "insert today's timestamp in format '<%Y-%m-%d %a>'"
   (interactive)
   (insert (format-time-string "<%Y-%m-%d %a>")))
 
-(defun nh/copy-buffer-file-name ()
+(defun dh/copy-buffer-file-name ()
   "Add `buffer-file-name' to `kill-ring' and echo the value to
 the minibuffer"
   (interactive)
@@ -166,20 +167,20 @@ the minibuffer"
 	(message buffer-file-name))
     (message "no file associated with this buffer")))
 
-(defun nh/move-line-up ()
+(defun dh/move-line-up ()
   (interactive)
   (transpose-lines 1)
   (previous-line 2))
-(global-set-key (kbd "M-<up>") 'nh/move-line-up)
+(global-set-key (kbd "M-<up>") 'dh/move-line-up)
 
-(defun nh/move-line-down ()
+(defun dh/move-line-down ()
   (interactive)
   (next-line 1)
   (transpose-lines 1)
   (previous-line 1))
-(global-set-key (kbd "M-<down>") 'nh/move-line-down)
+(global-set-key (kbd "M-<down>") 'dh/move-line-down)
 
-(defun nh/transpose-buffers (arg)
+(defun dh/transpose-buffers (arg)
   "Transpose the buffers shown in two windows."
   (interactive "p")
   (let ((selector (if (>= arg 0) 'next-window 'previous-window)))
@@ -192,9 +193,9 @@ the minibuffer"
       ;; (setq arg (if (plusp arg) (1- arg) (1+ arg)))
       (setq arg (if (>= arg 0) (1- arg) (1+ arg)))
       )))
-(global-set-key (kbd "C-x 4") 'nh/transpose-buffers)
+(global-set-key (kbd "C-x 4") 'dh/transpose-buffers)
 
-(defun nh/switch-buffers-between-frames ()
+(defun dh/switch-buffers-between-frames ()
   "switch-buffers-between-frames switches the buffers between the two last frames"
   (interactive)
   (let ((this-frame-buffer nil)
@@ -205,9 +206,9 @@ the minibuffer"
     (switch-to-buffer this-frame-buffer)
     (other-frame 1)
     (switch-to-buffer other-frame-buffer)))
-(global-set-key (kbd "C-x 5") 'nh/switch-buffers-between-frames)
+(global-set-key (kbd "C-x 5") 'dh/switch-buffers-between-frames)
 
-(defun nh/toggle-frame-split ()
+(defun dh/toggle-frame-split ()
   "If the frame is split vertically, split it horizontally or vice versa.
 Assumes that the frame is only split into two."
   (interactive)
@@ -218,15 +219,15 @@ Assumes that the frame is only split into two."
         (split-window-horizontally)
       (split-window-vertically)) ; gives us a split with the other window twice
     (switch-to-buffer nil))) ; restore the original window in this part of the frame
-(global-set-key (kbd "C-x 6") 'nh/toggle-frame-split)
+(global-set-key (kbd "C-x 6") 'dh/toggle-frame-split)
 
-(defun nh/unfill-paragraph ()
+(defun dh/unfill-paragraph ()
   (interactive)
   (let ((fill-column (point-max)))
     (fill-paragraph nil)))
-(global-set-key (kbd "M-C-q") 'nh/unfill-paragraph)
+(global-set-key (kbd "M-C-q") 'dh/unfill-paragraph)
 
-(defun nh/copy-region-or-line-other-window ()
+(defun dh/copy-region-or-line-other-window ()
   "Copy selected text or current line to other window"
   (interactive)
   (progn (save-excursion
@@ -240,7 +241,7 @@ Assumes that the frame is only split into two."
          (other-window -1)))
 
 ;;* spelling
-(defvar nh/enable-flyspell-p "enable flyspell in various modes")
+(defvar dh/enable-flyspell-p "enable flyspell in various modes")
 
 ;; use aspell if installed
 (if (cond
@@ -251,33 +252,33 @@ Assumes that the frame is only split into two."
       (message "** using %s for flyspell" ispell-program-name)
       (autoload 'flyspell-mode "flyspell" "On-the-fly spelling checker." t)
       (setq flyspell-issue-welcome-flag nil)
-      (setq nh/enable-flyspell-p t))
-  (setq nh/enable-flyspell-p nil)
+      (setq dh/enable-flyspell-p t))
+  (setq dh/enable-flyspell-p nil)
   (message "** could not find hunspell or aspell"))
 
 ;;* init file utilities
 ;; TODO: refer to
-(defun nh/init-file-edit ()
+(defun dh/init-file-edit ()
   "Edit `user-init-file'"
   (interactive)
   (find-file user-init-file))
 
-(defun nh/init-file-header-occur ()
+(defun dh/init-file-header-occur ()
   (interactive)
   (find-file user-init-file)
   (occur "^;;\\* "))
 
-(defun nh/init-file-use-package-occur ()
+(defun dh/init-file-use-package-occur ()
   (interactive)
   (find-file user-init-file)
   (occur "^(use-package"))
 
-(defun nh/init-file-header-insert ()
+(defun dh/init-file-header-insert ()
   "insert ';;*' header"
   (interactive)
   (insert ";;*"))
 
-(defun nh/init-file-load ()
+(defun dh/init-file-load ()
   "Reload init file"
   (interactive)
   (load user-init-file))
@@ -364,7 +365,7 @@ Assumes that the frame is only split into two."
   (add-to-list 'grep-find-ignored-directories ".eggs")
   (add-to-list 'grep-find-ignored-directories "src"))
 
-;; (defun nh/grep-ignore-venv-current-project (&rest args)
+;; (defun dh/grep-ignore-venv-current-project (&rest args)
 ;;   (interactive)
 ;;   (let ((venv (find-venv-current-project)))
 ;;     (if venv
@@ -376,9 +377,9 @@ Assumes that the frame is only split into two."
 ;;       (message "no virtualenv at this location")
 ;;       )))
 
-;; (advice-add 'rgrep :before #'nh/grep-ignore-venv-current-project)
-;; (advice-add 'projectile-grep :before #'nh/grep-ignore-venv-current-project)
-;; (advice-add 'counsel-projectile-grep :before #'nh/grep-ignore-venv-current-project)
+;; (advice-add 'rgrep :before #'dh/grep-ignore-venv-current-project)
+;; (advice-add 'projectile-grep :before #'dh/grep-ignore-venv-current-project)
+;; (advice-add 'counsel-projectile-grep :before #'dh/grep-ignore-venv-current-project)
 
 ;;* auto-complete using company-mode
 (use-package company
@@ -409,12 +410,12 @@ Assumes that the frame is only split into two."
 ;;   (setq lsp-ui-sideline-show-flycheck nil))
 
 ;;* python
-(defcustom nh/py3-venv
-  (nh/emacs-dir-path "py3-env") "virtualenv for flycheck, etc")
+(defcustom dh/py3-venv
+  (dh/emacs-dir-path "py3-env") "virtualenv for flycheck, etc")
 
-(defun nh/py3-venv-bin (name)
-  "Return the path to an executable installed in `nh/py3-venv'"
-  (nh/path-join nh/py3-venv "bin" name))
+(defun dh/py3-venv-bin (name)
+  "Return the path to an executable installed in `dh/py3-venv'"
+  (dh/path-join dh/py3-venv "bin" name))
 
 (use-package python-mode
   :mode
@@ -447,18 +448,18 @@ Assumes that the frame is only split into two."
   :ensure t
   :config
   (setq flycheck-python-flake8-executable
-	(nh/py3-venv-bin "flake8"))
+	(dh/py3-venv-bin "flake8"))
   (setq flycheck-flake8rc
-	(nh/emacs-dir-path "flake8.conf"))
+	(dh/emacs-dir-path "flake8.conf"))
   :hook
   (python-mode . flycheck-mode))
 
 ;; function to reformat using yapf
-(defun nh/yapf-region-or-buffer ()
+(defun dh/yapf-region-or-buffer ()
   "Apply yapf to the current region or buffer"
   (interactive)
-  (let* ((yapf (nh/py3-venv-bin "yapf"))
-	 (yapf-config (nh/emacs-dir-path "yapf.cfg"))
+  (let* ((yapf (dh/py3-venv-bin "yapf"))
+	 (yapf-config (dh/emacs-dir-path "yapf.cfg"))
 	 ;; use config file if exists
 	 (yapf-cmd (if (file-exists-p yapf-config)
 		       (concat yapf " --style " yapf-config)
@@ -475,7 +476,7 @@ Assumes that the frame is only split into two."
      t)                               ;; show error buffer?
     ))
 
-;; (defun nh/autopep8-and-ediff ()
+;; (defun dh/autopep8-and-ediff ()
 ;;   "Compare the current buffer to the output of autopep8 using ediff"
 ;;   (interactive)
 ;;   (let ((p8-output
@@ -513,23 +514,23 @@ Assumes that the frame is only split into two."
     ("C-g" redraw-display "<quit>")
     ("RET" redraw-display "<quit>")
 	("b" hydra-bookmarks/body "hyrda for bookmarks")
-    ("B" nh/copy-buffer-file-name "nh/copy-buffer-file-name")
-    ("d" nh/insert-date "nh/insert-date")
+    ("B" dh/copy-buffer-file-name "dh/copy-buffer-file-name")
+    ("d" dh/insert-date "dh/insert-date")
     ("e" save-buffers-kill-emacs "save-buffers-kill-emacs")
-    ("f" nh/fix-frame "fix-frame")
+    ("f" dh/fix-frame "fix-frame")
     ("g" hydra-toggle-mode/body "toggle mode")
     ("h" hydra-helm/body "helm commands")
     ("i" hydra-init-file/body "hydra for init file")
-    ("n" nh/org-find-index "nh/org-find-index")
-    ("N" nh/org-add-entry-to-index "nh/org-add-entry-to-index")
+    ("n" dh/org-find-index "dh/org-find-index")
+    ("N" dh/org-add-entry-to-index "dh/org-add-entry-to-index")
     ("m" magit-status "magit-status")
     ("o" hydra-org-navigation/body "hydra-org-navigation")
-    ("O" nh/copy-region-or-line-other-window "copy-region-or-line-other-window")
+    ("O" dh/copy-region-or-line-other-window "copy-region-or-line-other-window")
     ("p" hydra-python/body "python menu")
     ("P" package-list-packages "package-list-packages")
-    ("s" nh/ssh-refresh "ssh-refresh")
+    ("s" dh/ssh-refresh "ssh-refresh")
     ("t" org-todo-list "org-todo-list")
-    ("T" nh/transpose-buffers "transpose-buffers")
+    ("T" dh/transpose-buffers "transpose-buffers")
     ("u" untabify "untabify")
     ("w" hydra-web-mode/body "web-mode commands")
     ("y" hydra-yasnippet/body "yasnippet commands"))
@@ -539,13 +540,13 @@ Assumes that the frame is only split into two."
     "hydra-init-file"
     ("RET" redraw-display "<quit>")
     ("C-g" redraw-display "<quit>")
-    ("i" nh/init-file-edit "edit init file")
-    ("l" nh/init-file-load "reload init file")
-    ("h" nh/init-file-header-occur "occur headers")
-    ("H" nh/init-file-header-insert "insert header")
-    ("u" nh/init-file-use-package-occur "occur use-package declarations"))
+    ("i" dh/init-file-edit "edit init file")
+    ("l" dh/init-file-load "reload init file")
+    ("h" dh/init-file-header-occur "occur headers")
+    ("H" dh/init-file-header-insert "insert header")
+    ("u" dh/init-file-use-package-occur "occur use-package declarations"))
 
-  (defun nh/set-bookmark-for-function ()
+  (defun dh/set-bookmark-for-function ()
 	(interactive)
 	(let* ((tag (read-string "project tag: "))
 		   (funcname (which-function))
@@ -563,7 +564,7 @@ Assumes that the frame is only split into two."
 	("j" bookmark-jump "jump to bookmark")
 	("s" bookmark-set "set bookmark")
 	("d" bookmark-delete "delete bookmark")
-	("f" nh/set-bookmark-for-function "bookmark this function"))
+	("f" dh/set-bookmark-for-function "bookmark this function"))
 
   (defhydra hydra-toggle-mode (:color blue :columns 4 :post (redraw-display))
     "hydra-toggle-mode"
@@ -596,7 +597,7 @@ Assumes that the frame is only split into two."
     ("S-<down>" org-forward-paragraph "org-forward-paragraph")
     ("S-<up>" org-backward-paragraph "org-backward-paragraph")
     ("s" (org-insert-structure-template "src") "add src block" :color blue)
-    ("w" nh/org-element-as-docx "nh/org-element-as-docx" :color blue)
+    ("w" dh/org-element-as-docx "dh/org-element-as-docx" :color blue)
     ("q" nil "<quit>"))
 
   (defhydra hydra-python (:color blue :columns 4 :post (redraw-display))
@@ -607,7 +608,7 @@ Assumes that the frame is only split into two."
     ("c" flycheck-list-errors "flycheck-list-errors")
     ("f" flycheck-verify-setup "flycheck-verify-setup")
     ;; ("v" activate-venv-current-project "activate-venv-current-project")
-    ("y" nh/yapf-region-or-buffer "nh/yapf-region-or-buffer")
+    ("y" dh/yapf-region-or-buffer "dh/yapf-region-or-buffer")
     ("d" lsp-describe-thing-at-point "lsp-describe-thing-at-point"))
 
   (defhydra hydra-yasnippet (:color blue :columns 4 :post (redraw-display))
@@ -615,11 +616,17 @@ Assumes that the frame is only split into two."
     ("RET" redraw-display "<quit>")
     ("i" yas-insert-snippet "yas-insert-snippet"))
 
+  (defhydra hydra-web-mode (:color blue :columns 4 :post (redraw-display))
+	"hydra-web-mode"
+	("RET" redraw-display "<quit>")
+	("b" web-mode-element-beginning "element-beginning")
+	("e" web-mode-element-end "element-end")
+	("/" web-mode-element-close "element-close"))
   ) ;; end hydra config
 
 ;;* ESS (R language support)
 
-(defun nh/set-inferior-ess-r-program-name ()
+(defun dh/set-inferior-ess-r-program-name ()
   "Set `inferior-ess-r-program-name' as the absolute path to the R
 interpreter. On systems using 'modules'
 (http://modules.sourceforge.net/), load the R module before defining
@@ -631,7 +638,7 @@ the path."
 	 (shell-command-to-string
 	  "which ml > /dev/null && (ml R; which R) || which R"))))
 
-(defun nh/set-inferior-ess-r-program-name ()
+(defun dh/set-inferior-ess-r-program-name ()
   "Set `inferior-ess-r-program-name' as the absolute path to the R
 interpreter. On systems using 'modules'
 (http://modules.sourceforge.net/), load the R module before defining
@@ -655,11 +662,11 @@ the path."
 	       (ess-toggle-underscore nil)
                ;; set ESS indentation style [GNU, BSD, K&R, CLB, C++]
                (ess-set-style 'GNU 'quiet)
-	       (nh/set-inferior-ess-r-program-name)
+	       (dh/set-inferior-ess-r-program-name)
 	       )))
 
 ;;* org-mode
-(defun nh/org-mode-hooks ()
+(defun dh/org-mode-hooks ()
   (message "Loading org-mode hooks")
   ;; (font-lock-mode)
   (setq org-confirm-babel-evaluate nil)
@@ -676,7 +683,7 @@ the path."
   ;; org-babel
 
   ;; enable a subset of languages for evaluation in code blocks
-  (setq nh/org-babel-load-languages
+  (setq dh/org-babel-load-languages
 	'((R . t)
 	  (latex . t)
 	  (python . t)
@@ -686,12 +693,12 @@ the path."
 	  (dot . t)))
 
   ;; use "shell" for org-mode versions 9 and above
-  (add-to-list 'nh/org-babel-load-languages
+  (add-to-list 'dh/org-babel-load-languages
 	       (if (>= (string-to-number (substring (org-version) 0 1)) 9)
 		   '(shell . t) '(sh . t)))
 
   (org-babel-do-load-languages
-   'org-babel-load-languages nh/org-babel-load-languages)
+   'org-babel-load-languages dh/org-babel-load-languages)
 
   (defadvice org-todo-list (after org-todo-list-bottom ())
     "Move to bottom of page after entering org-todo-list"
@@ -710,12 +717,12 @@ the path."
       :mode
       ("\\.org\\'" . org-mode)
       ("\\.org\\.txt\\'" . org-mode)
-      :hook (org-mode . nh/org-mode-hooks))
+      :hook (org-mode . dh/org-mode-hooks))
   (use-package org
     :mode
     ("\\.org\\'" . org-mode)
     ("\\.org\\.txt\\'" . org-mode)
-    :hook (org-mode . nh/org-mode-hooks)))
+    :hook (org-mode . dh/org-mode-hooks)))
 
 (use-package ox-minutes
   :ensure t
@@ -725,7 +732,7 @@ the path."
   :ensure t
   :after (org))
 
-(defun nh/org-add-entry (filename time-format)
+(defun dh/org-add-entry (filename time-format)
   ;; Add an entry to an org-file with today's timestamp.
   (interactive "FFile: ")
   (find-file filename)
@@ -733,29 +740,29 @@ the path."
   (delete-blank-lines)
   (insert (format-time-string time-format)))
 
-(defvar nh/org-index "~/Dropbox/notes/index.org")
-(defun nh/org-add-entry-to-index ()
+(defvar dh/org-index "~/Dropbox/notes/index.org")
+(defun dh/org-add-entry-to-index ()
   (interactive)
-  (nh/org-add-entry nh/org-index "\n* <%Y-%m-%d %a> "))
+  (dh/org-add-entry dh/org-index "\n* <%Y-%m-%d %a> "))
 
-(defun nh/org-find-index ()
+(defun dh/org-find-index ()
   (interactive)
-  (find-file nh/org-index))
+  (find-file dh/org-index))
 
-(defun nh/safename (str)
+(defun dh/safename (str)
   "Remove non-alphanum characters and downcase"
   (let ((exprs '(("^\\W+" "") ("\\W+$" "") ("\\W+" "-"))))
     (dolist (e exprs)
       (setq str (replace-regexp-in-string (nth 0 e) (nth 1 e) str)))
     (downcase str)))
 
-(defun nh/org-element-as-docx ()
+(defun dh/org-element-as-docx ()
   "Export the contents of the element at point to a file and
 convert to .docx with pandoc"
   (interactive)
   (let* ((sec (car (cdr (org-element-at-point))))
          (header (plist-get sec ':title))
-         (fname (nh/safename header))
+         (fname (dh/safename header))
          (basedir
           (shell-quote-argument
 	   (read-directory-name
@@ -780,14 +787,14 @@ convert to .docx with pandoc"
 (add-hook 'text-mode-hook
           '(lambda ()
              ;; (longlines-mode)
-             (if nh/enable-flyspell-p (flyspell-mode))))
+             (if dh/enable-flyspell-p (flyspell-mode))))
 
 ;;* rst-mode
 
 (add-hook 'rst-mode-hook
           '(lambda ()
              (message "Loading rst-mode hooks")
-             (if nh/enable-flyspell-p (flyspell-mode))
+             (if dh/enable-flyspell-p (flyspell-mode))
              (define-key rst-mode-map (kbd "C-c C-a") 'rst-adjust)))
 
 ;;* tramp
@@ -862,6 +869,21 @@ convert to .docx with pandoc"
 (use-package jinja2-mode
   :ensure t)
 
+(use-package web-mode
+  :ensure t
+  :mode (("\\.html" . web-mode))
+  :init
+  (setq web-mode-engines-alist
+		'(("django" . "\\.html")))
+  (setq indent-tabs-mode nil)
+  )
+
 (use-package dockerfile-mode
   :ensure t
   :mode ("Dockerfile" . dockerfile-mode))
+
+(use-package solarized-theme
+  :ensure t)
+
+;; (load-theme 'solarized-dark t)
+(setq ring-bell-function 'ignore)
